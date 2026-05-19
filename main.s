@@ -87,7 +87,7 @@ main:
     # Read W_Q matrix
     ###########################################################################
     # TODO
-    li a7,CONST_SYSCALL_OPEN
+    li a7,CONST_SYSCALL_OPEN 
     la a0, W_Q_FILENAME
     li a1, 0
     ecall 
