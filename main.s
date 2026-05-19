@@ -91,7 +91,7 @@ main:
     la a0, W_Q_FILENAME
     li a1, 0
     ecall 
-    jal ra, read_file
+    jal ra, read_file   #hamburger so
 
     ###########################################################################
     # Parse W_Q matrix from buffer
