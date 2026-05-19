@@ -71,7 +71,7 @@ main:
     li a1, 0 # ent�o o  a1 0 especificamente vai abrir o modo de leitura
     ecall # quem executa isso tudo � o 
     jal ra, read_file
-    
+
     ###########################################################################
     # Read input
     ###########################################################################
@@ -569,4 +569,5 @@ print_predicted_token_nl:
     lw s1, 8(sp)
     addi sp, sp, 12
     ret
+#durante
 #yh marcio
