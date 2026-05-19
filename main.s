@@ -127,7 +127,8 @@ main:
     # Parse vocabulary embeddings matrix from buffer
     ###########################################################################
     # TODO
-
+    
+   
     ###########################################################################
     # Convert input tokens to indices
     ###########################################################################
@@ -162,20 +163,35 @@ main:
     # Get the highest score index using argmax
     ###########################################################################
     # TODO
+    la a1, SCORES_VECTOR
+    lw a2, INPUT_TOTAL_TOKENS 
+    jal ra, argmax
 
     ###########################################################################
     # Select chosen vector in V using the index from argmax
     ###########################################################################
     # TODO
+    mv a4, a1
+    la a1, V_MATRIX
+    li a3, CONST_DIMENSION
+    jal ra, select_vector_in_matrix
+    
 
     ###########################################################################
     # Pick the next token in the vocabulary with the highest score
     ###########################################################################
     # TODO
+    la a1,VOCAB_EMBEDDINGS_MATRIX
+    lw a2, VOCAB_TOTAL_TOKENS
+    jal ra, decide_next_token
+    
+    la a1,VOCAB_BUFFER
+    jal ra, print_predicted_token
 
     ###########################################################################
     # Terminate program successfully
     ###########################################################################
+    
     li a0, 0
     j exit_with_code                                # Exit with code 0
 
@@ -184,6 +200,7 @@ main:
 # (in/out) a1: destination buffer
 # (in)     a2: maximum number of bytes to read
 read_file:
+
     # TODO
 
     mv s0, a0
@@ -248,13 +265,77 @@ compute_scores:
 # (in)  a4: target row
 select_vector_in_matrix:
     # TODO
-
+    blt a4,a2,continue_select
+    li a0, CONST_MAX_VOCAB_TOKENS
+    j exit_with_code
+    continue_select:
+    mul t0, a4,a3
+    mul t1, t0, 4
+    add a0, a1, t1
+    ret
 # (out) a0: index of the predicted token in the vocabulary (int)
 # (in)  a0: address of target vector (int*)
 # (in)  a1: vocabulary embeddings address (int*)
 # (in)  a2: number of tokens in vocabulary (int)
 decide_next_token:
     # TODO
+    addi sp, sp , -28
+    sw ra,0(sp)
+    sw s0,4(sp) # guardar address of target vector
+    sw s1,8(sp) # guardar vocabulary embeddings address 
+    sw s2,12(sp) # guardar VOCAB_TOTAL_TOKENS
+    sw s3,16(sp) # indice atual
+    sw s4,20(sp) # indice maior
+    sw s5,24(sp) # maior valor de dot 
+    # inicializar e tranferir valores 
+    # para stack pois são destruidos no dot
+    mv s0,a0 # guarda vetor alvo
+    mv s1,a1 # guarda enderco do vocab
+    mv s2, a2 # numero de tokens no vocab
+    mv s4,zero # inicializar o indice final
+    li s3,1  # vamos começar do inicio
+# preparar registos que são usados no dot
+    mv a2,a1 # recebe os vocab
+    mv a1,a0 # recebe o vetor alvo
+    li a3,CONST_DIMENSION # o tamnho da matriz
+    jal ra, dot 
+    mv s5, a1 # inicializa com o maior valor de dot o 1º
+    addi s1,s1,16 # avança na memoria
+    loop_next: beq s3,s2,sair_disto # caso ultrapasse o numero de tokens sair do loop
+        # preparando os registo para dot
+        mv a1,s0 
+        mv a2,s1
+        li a3, CONST_DIMENSION
+        jal ra, dot
+        # se o atual maior for menor que o novo trocar
+        blt s5,a1,novo_maior
+        #senão avança
+        addi s1,s1, 16
+        addi s3,s3,1
+        j loop_next
+        # caso sim novo maior e
+        # o indice do novo maior serão guardados
+        novo_maior:
+        mv s5,a1
+        mv s4,s3
+        addi s1,s1, 16
+        addi s3,s3,1
+        j loop_next
+    
+
+sair_disto:
+# limpar a stack
+lw ra,0(sp)
+lw s0,4(sp)
+lw s1,8(sp)
+lw s2,12(sp)
+lw s3,16(sp) # indice atual
+lw s4,20(sp) # indice maior
+lw s5,24(sp)
+addi sp, sp ,28
+# devolver o resultado
+mv a0, s4
+ret
 
 #############################################################################################################
 # Dot product and argmax helper functions.
@@ -550,6 +631,7 @@ print_predicted_token_skip:
     j print_predicted_token_skip
 print_predicted_token_read:
     # s1 = start of target token, print it char by char until newline or null
+
 print_predicted_token_char:
     lb t0, 0(s1)
     beq t0, zero, print_predicted_token_nl          # null terminator
@@ -560,6 +642,8 @@ print_predicted_token_char:
     ecall
     addi s1, s1, 1
     j print_predicted_token_char
+
+
 print_predicted_token_nl:
     li a0, CONST_CHAR_NEWLINE
     li a7, CONST_SYSCALL_PRINT_CHAR
@@ -569,5 +653,4 @@ print_predicted_token_nl:
     lw s1, 8(sp)
     addi sp, sp, 12
     ret
-#durante
 #yh marcio
