@@ -66,11 +66,12 @@ main:
     # Read vocabulary
     ###########################################################################
     # TODO
-    li a7, CONST_SYSCALL_OPEN   #vai dar um syscall OPEN FILE
-    la a0, VOCABULARY_FILENAME   # aqui vai gaurdar endereï¿½o do nome do ficheiro
-    li a1, 0 # entï¿½o o  a1 0 especificamente vai abrir o modo de leitura
-    ecall # quem executa isso tudo ï¿½ o 
+      li a7, CONST_SYSCALL_OPEN   #vai dar um syscall OPEN FILE
+    la a0, VOCABULARY_FILENAME   # aqui vai gaurdar endereço do nome do ficheiro
+    li a1, 0 # então o  a1 0 especificamente vai abrir o modo de leitura
+    ecall # quem executa isso tudo é o 
     jal ra, read_file
+    
     
     ###########################################################################
     # Read input
@@ -82,7 +83,6 @@ main:
     ecall
     jal ra, read_file
 
-
     ###########################################################################
     # Read W_Q matrix
     ###########################################################################
@@ -92,7 +92,6 @@ main:
     li a1, 0
     ecall 
     jal ra, read_file
-
     ###########################################################################
     # Parse W_Q matrix from buffer
     ###########################################################################
@@ -120,6 +119,8 @@ main:
 
     ###########################################################################
     # Read embeddings matrix
+    li a7, CONST_SYSCALL_OPEN
+    la a0, 
     ###########################################################################
     # TODO
 
@@ -185,12 +186,12 @@ main:
 # (in)     a2: maximum number of bytes to read
 read_file:
     # TODO
-
+    
     mv s0, a0
     
     li a7, CONST_SYSCALL_READ   #vai dar o syscall para dar um READ FILE
     mv a0, s0   #como o syscall esta a espera de a0 como um dos resgistos para carregar o id do file descriptor
-    la a1, CONST_BUFFER_SIZE   #guardar o endereï¿½o do buffer
+    la a1, CONST_BUFFER_SIZE   #guardar o endereço do buffer
     li a2, CONST_BUFFER_SIZE  # numero maximo de bytes a guardar
     ecall
     
@@ -198,6 +199,9 @@ read_file:
     mv a0, s0  #vai puxar o file descriptor para o registo esperado 
     ecall #este vai executar isso tudo
     
+    ret
+ 
+
 # Assumes the matrix is stored in the buffer as space-separated integers.
 # Assumes columns are separated by 1 space (' '), and rows by 1 newline ('\n').
 # Assumes only signed integers are provided.
@@ -569,4 +573,3 @@ print_predicted_token_nl:
     lw s1, 8(sp)
     addi sp, sp, 12
     ret
-#yh marcio
