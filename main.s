@@ -160,6 +160,7 @@ main:
     li a3, CONST_DIMENSION
     jal ra, select_vector_in_matrix
     
+
     ###########################################################################
     # Pick the next token in the vocabulary with the highest score
     ###########################################################################
@@ -624,4 +625,3 @@ print_predicted_token_nl:
     lw s1, 8(sp)
     addi sp, sp, 12
     ret
-#yh marcio
