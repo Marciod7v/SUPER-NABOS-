@@ -236,25 +236,7 @@ tokens_to_indices:
 # (in)     a1: address of the vocabulary embeddings matrix (int*)
 # (in)     a2: address of the input indices array (int*)
 # (in)     a3: number of tokens in the input (int)
-build_input_embeddings_matrix:
-    # TODO
 
-# (in/out) a0: address of the output matrix to fill (int*)
-# (in)     a1: address of the first matrix (int*)
-# (in)     a2: #rows of the first matrix (int)
-# (in)     a3: #columns of the first matrix (int)
-# (in)     a4: address of the second matrix (int*)
-# (in)     a5: #rows of the second matrix (int)
-# (in)     a6: #columns of the second matrix (int)
-matrix_multiply:
-    # TODO
-
-# (in/out) a0: address of the output scores vector to fill (int*)
-# (in)     a1: address of Q matrix (int*)
-# (in)     a2: address of K matrix (int*)
-# (in)     a3: #rows of Q and K (int)
-# (in)     a4: #columns of Q and K (int)
-# (in)     a5: target token index for which we want to compute the score (int)
 compute_scores:
     # TODO
 
