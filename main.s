@@ -276,7 +276,7 @@ decide_next_token:
     mv s2, a2 # numero de tokens no vocab
     mv s4,zero # inicializar o indice final
     li s3,1  # vamos começar do inicio
-# preparar registos que são usados no dot
+    #preparar registos que são usados no dot 
     mv a2,a1 # recebe os vocab
     mv a1,a0 # recebe o vetor alvo
     li a3,CONST_DIMENSION # o tamnho da matriz
