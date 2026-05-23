@@ -251,8 +251,8 @@ select_vector_in_matrix:
     li a0, CONST_MAX_VOCAB_TOKENS
     j exit_with_code
     continue_select:
-    mul t0, a4,a3
-    mul t1, t0, 4
+    mul t0, a4, a3   # multiplica o indice do do vetor target com numero de colunas
+    slli t0, t0, 2   # avanca 4 bytes
     add a0, a1, t1
     ret
 # (out) a0: index of the predicted token in the vocabulary (int)
@@ -307,6 +307,8 @@ decide_next_token:
 
 sair_disto:
 # limpar a stack
+# devolver o resultado
+mv a0, s4
 lw ra,0(sp)
 lw s0,4(sp)
 lw s1,8(sp)
@@ -315,8 +317,6 @@ lw s3,16(sp) # indice atual
 lw s4,20(sp) # indice maior
 lw s5,24(sp)
 addi sp, sp ,28
-# devolver o resultado
-mv a0, s4
 ret
 
 #############################################################################################################
