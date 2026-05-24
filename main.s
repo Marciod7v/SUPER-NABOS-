@@ -739,6 +739,7 @@ decide_next_token:
         
     sair_disto:
     # limpar a stack
+    mv a0, s4 # se estiver aqui esta certo
     lw ra,0(sp)
     lw s0,4(sp)
     lw s1,8(sp)
@@ -747,8 +748,6 @@ decide_next_token:
     lw s4,20(sp) # indice maior
     lw s5,24(sp)
     addi sp, sp ,28
-    # devolver o resultado
-    mv a0, s4
     ret
         
 #############################################################################################################
