@@ -230,25 +230,32 @@ main:
     la a1, SCORES_VECTOR
     lw a2, INPUT_TOTAL_TOKENS 
     jal ra, argmax
+    mv s0, a1
     
     ###########################################################################
     # Select chosen vector in V using the index from argmax
     ###########################################################################
     # TODO
-    mv a4, a1
     la a1, V_MATRIX
+    lw a2, INPUT_TOTAL_TOKENS
     li a3, CONST_DIMENSION
+    mv a4, s0
     jal ra, select_vector_in_matrix
+    mv s1, a0
     
     ###########################################################################
     # Pick the next token in the vocabulary with the highest score
     ###########################################################################
     # TODO
-     la a1,VOCAB_EMBEDDINGS_MATRIX
+    mv a0, s1
+    la a1,VOCAB_EMBEDDINGS_MATRIX
     lw a2, VOCAB_TOTAL_TOKENS
     jal ra, decide_next_token
-    
-    la a1,VOCAB_BUFFER
+
+    mv s2, a0
+    la a0, VOCAB_BUFFER
+    mv a1, s2
+    jal ra, get_token_address
     jal ra, print_predicted_token
 
     
@@ -264,27 +271,38 @@ main:
 # (in)     a2: maximum number of bytes to read
 read_file:
     # TODO
-     mv t0, a0      # filename
-    mv t1, a1      # buffer
-    mv t2, a2      # tamanho
-
-    li a7, CONST_SYSCALL_OPEN
-    mv a0, t0
+    addi sp, sp, -16
+    sw ra, 0(sp)
+    sw s0, 4(sp)
+    sw s1, 8(sp)
+    sw s2, 12(sp)
+    mv s0, a1      # buffer
+    mv s1, a2      # tamanho
     li a1, 0
+    li a2, 0
+    li a7, CONST_SYSCALL_OPEN
     ecall
 
-    mv t3, a0      # file descriptor
+    mv s2, a0      # file descriptor
 
     li a7, CONST_SYSCALL_READ
-    mv a0, t3
-    mv a1, t1
-    mv a2, t2
+    mv a0, s2
+    mv a1, s0
+    mv a2, s1
     ecall
+
+    add t0, s0, a0
+    sb zero, 0(t0)
 
     li a7, CONST_SYSCALL_CLOSE
-    mv a0, t3
+    mv a0, s2
     ecall
 
+    lw ra, 0(sp)
+    lw s0, 4(sp)
+    lw s1, 8(sp)
+    lw s2, 12(sp)
+    addi sp, sp, 16
     ret
 # Assumes the matrix is stored in the buffer as space-separated integers.
 # Assumes columns are separated by 1 space (' '), and rows by 1 newline ('\n').
@@ -398,6 +416,10 @@ tokens_to_indices:
 input_token_loop:
     lbu t0, 0(s1)
     beq t0, zero, tokens_done
+    li t1, CONST_CHAR_NEWLINE
+    beq t0, t1, skip_input_separator
+    li t1, CONST_CHAR_SPACE
+    beq t0, t1, skip_input_separator
 
     mv t1, s2  # t1 = in?cio do vocab
     li t2, 0  # ?ndice atual do vocab
@@ -414,6 +436,8 @@ compare_loop:
     lbu a4, 0(t5)
 
     li a5, CONST_CHAR_NEWLINE
+    beq t6, a5, input_end_word
+    li a5, CONST_CHAR_SPACE
     beq t6, a5, input_end_word
     beq t6, zero, input_end_word
 
@@ -439,10 +463,16 @@ advance_input:
     beq t0, zero, input_token_loop
     li t1, CONST_CHAR_NEWLINE
     beq t0, t1, after_input_newline
+    li t1, CONST_CHAR_SPACE
+    beq t0, t1, after_input_newline
     addi s1, s1, 1
     j advance_input
 
 after_input_newline:
+    addi s1, s1, 1
+    j input_token_loop
+
+skip_input_separator:
     addi s1, s1, 1
     j input_token_loop
 
@@ -737,6 +767,27 @@ decide_next_token:
     lw s4,20(sp) # indice maior
     lw s5,24(sp)
     addi sp, sp ,28
+    ret
+
+# a0: vocab buffer, a1: token index -> a0: address of token
+get_token_address:
+    mv t0, a0
+    mv t1, a1
+    li t2, 0
+get_token_address_loop:
+    beq t2, t1, get_token_address_found
+    lbu t3, 0(t0)
+    beq t3, zero, get_token_address_found
+    li t4, CONST_CHAR_NEWLINE
+    beq t3, t4, get_token_address_next
+    addi t0, t0, 1
+    j get_token_address_loop
+get_token_address_next:
+    addi t0, t0, 1
+    addi t2, t2, 1
+    j get_token_address_loop
+get_token_address_found:
+    mv a0, t0
     ret
         
 #############################################################################################################
