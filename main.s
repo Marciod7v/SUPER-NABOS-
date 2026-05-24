@@ -66,39 +66,27 @@ main:
     # Read vocabulary
     ###########################################################################
     # TODO
-      li a7, CONST_SYSCALL_OPEN   #vai dar um syscall OPEN FILE
-    la a0, VOCABULARY_FILENAME   # aqui vai gaurdar endere?o do nome do ficheiro
-    li a1, 0 # ent?o o  a1 0 especificamente vai abrir o modo de leitura
-    ecall # quem executa isso tudo ? o 
-    
-    la a1, VOCAB_BUFFER
-    li a2, CONST_BUFFER_SIZE
-    jal ra, read_file
+     la a0, VOCABULARY_FILENAME
+     la a1, VOCAB_BUFFER
+     li a2, CONST_BUFFER_SIZE
+     jal ra, read_file
     ###########################################################################
     # Read input
     ###########################################################################
     # TODO
-      li a7, CONST_SYSCALL_OPEN
-    la a0, INPUT_FILENAME
-    li a1, 0
-    ecall
-
-
-    la a1, INPUT_BUFFER
-    li a2, CONST_BUFFER_SIZE 
-    jal ra, read_file
+      la a0, INPUT_FILENAME
+      la a1, INPUT_BUFFER
+      li a2, CONST_BUFFER_SIZE
+      jal ra, read_file
     ###########################################################################
     # Read W_Q matrix
     ###########################################################################
     # TODO
-    li a7,CONST_SYSCALL_OPEN 
     la a0, W_Q_FILENAME
-    li a1, 0
-    ecall
-
     la a1, MATRIX_BUFFER
-    li a2, CONST_BUFFER SIZE
-    jal ra, read_file  
+    li a2, CONST_BUFFER_SIZE
+    jal ra, read_file
+
     ###########################################################################
     # Parse W_Q matrix from buffer
     ###########################################################################
@@ -106,19 +94,16 @@ main:
     la a0, W_Q_MATRIX
     la a1, MATRIX_BUFFER
     jal ra, parse_matrix_buffer
-    # N?o guardamos rows porque W_Q ? sempre 4x4 (a1 ? ignorado)
-
+    
     ###########################################################################
     # Read W_K matrix
     ###########################################################################
     # TODO
-      li a7, CONST_SYSCALL_OPEN
-    la a0, W_K_FILENAME
-    li a1, 0
-    ecall
-    la a1, MATRIX_BUFFER
-    li a2, CONST_BUFFER_SIZE
-    jal ra, read_file
+     la a0, W_K_FILENAME
+     la a1, MATRIX_BUFFER
+     li a2, CONST_BUFFER_SIZE
+     jal ra, read_file
+     
 
     ###########################################################################
     # Parse W_K matrix from buffer
@@ -132,11 +117,7 @@ main:
     # Read W_V matrix
     ###########################################################################
     # TODO
-    li a7, CONST_SYSCALL_OPEN
     la a0, W_V_FILENAME
-    li a1, 0
-    ecall
-    
     la a1, MATRIX_BUFFER
     li a2, CONST_BUFFER_SIZE
     jal ra, read_file
@@ -153,15 +134,11 @@ main:
     # Read embeddings matrix
     ###########################################################################
     # TODO
-    li a7, CONST_SYSCALL_OPEN
     la a0, EMBEDDINGS_FILENAME
-    li a1, 0
-    ecall
-
-    mv a0, a0
     la a1, MATRIX_BUFFER
     li a2, CONST_BUFFER_SIZE
     jal ra, read_file
+   
     ###########################################################################
     # Parse vocabulary embeddings matrix from buffer
     ###########################################################################
@@ -288,17 +265,28 @@ main:
 # (in)     a2: maximum number of bytes to read
 read_file:
     # TODO
-     mv s0, a0
-    
-    li a7, CONST_SYSCALL_READ   #vai dar o syscall para dar um READ FILE
-    mv a0, s0   #como o syscall esta a espera de a0 como um dos resgistos para carregar o id do file descriptor
+     mv t0, a0      # filename
+    mv t1, a1      # buffer
+    mv t2, a2      # tamanho
+
+    li a7, CONST_SYSCALL_OPEN
+    mv a0, t0
+    li a1, 0
     ecall
-    
-    li a7, CONST_SYSCALL_CLOSE  #vai dar um syscall para dar um CLOSE FILE
-    mv a0, s0  #vai puxar o file descriptor para o registo esperado 
+
+    mv t3, a0      # file descriptor
+
+    li a7, CONST_SYSCALL_READ
+    mv a0, t3
+    mv a1, t1
+    mv a2, t2
     ecall
-    
-    ret 
+
+    li a7, CONST_SYSCALL_CLOSE
+    mv a0, t3
+    ecall
+
+    ret
 # Assumes the matrix is stored in the buffer as space-separated integers.
 # Assumes columns are separated by 1 space (' '), and rows by 1 newline ('\n').
 # Assumes only signed integers are provided.
