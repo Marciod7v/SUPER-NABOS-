@@ -722,15 +722,17 @@ decide_next_token:
     
     # inicializar e tranferir valores 
     # para stack pois s?o destruidos no dot
+    
     mv s0,a0 # guarda vetor alvo
     mv s1,a1 # guarda enderco do vocab
     mv s2, a2 # numero de tokens no vocab
     mv s4,zero # inicializar o indice final
     li s3,1  # vamos come?ar do inicio
-    #preparar registos que s?o usados no dot
+
+    # preparar registos que s?o usados no dot
     mv a2,a1 # recebe os vocab
     mv a1,a0 # recebe o vetor alvo
-    li a3,CONST_DIMENSION # o tamnho da matriz
+    li a3, CONST_DIMENSION # o tamnho da matriz
     jal ra, dot 
     mv s5, a1 # inicializa com o maior valor de dot o 1?
     addi s1,s1,16 # avan?a na memoria
