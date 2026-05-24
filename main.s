@@ -70,6 +70,9 @@ main:
     la a0, VOCABULARY_FILENAME   # aqui vai gaurdar endere?o do nome do ficheiro
     li a1, 0 # ent?o o  a1 0 especificamente vai abrir o modo de leitura
     ecall # quem executa isso tudo ? o 
+    
+    la a1, INPUT_BUFFER
+    li a2, CONST_BUFFER_SIZE
     jal ra, read_file
     ###########################################################################
     # Read input
@@ -79,6 +82,10 @@ main:
     la a0, INPUT_FILENAME
     li a1, 0
     ecall
+
+
+    la a1, VOCAB_BUFFER
+    li a2, CONST_BUFFER_SIZE 
     jal ra, read_file
     ###########################################################################
     # Read W_Q matrix
@@ -87,7 +94,9 @@ main:
     li a7,CONST_SYSCALL_OPEN 
     la a0, W_Q_FILENAME
     li a1, 0
-    ecall 
+    ecall
+
+
     jal ra, read_file  
     ###########################################################################
     # Parse W_Q matrix from buffer
@@ -281,14 +290,13 @@ read_file:
     
     li a7, CONST_SYSCALL_READ   #vai dar o syscall para dar um READ FILE
     mv a0, s0   #como o syscall esta a espera de a0 como um dos resgistos para carregar o id do file descriptor
-    la a1, CONST_BUFFER_SIZE   #guardar o endere?o do buffer
-    li a2, CONST_BUFFER_SIZE  # numero maximo de bytes a guardar
     ecall
     
     li a7, CONST_SYSCALL_CLOSE  #vai dar um syscall para dar um CLOSE FILE
     mv a0, s0  #vai puxar o file descriptor para o registo esperado 
     ecall
     
+    ret 
 # Assumes the matrix is stored in the buffer as space-separated integers.
 # Assumes columns are separated by 1 space (' '), and rows by 1 newline ('\n').
 # Assumes only signed integers are provided.
@@ -675,7 +683,7 @@ select_vector_in_matrix:
     continue_select:
     mul t0, a4,a3    # multiplica o indice do do vetor target com numero de colunas
     slli t0, t0, 2   # avanca 4 bytes
-    add a0, a1, t1
+    add a0, a1, t0
     ret
     
 # (out) a0: index of the predicted token in the vocabulary (int)
