@@ -71,7 +71,7 @@ main:
     li a1, 0 # ent?o o  a1 0 especificamente vai abrir o modo de leitura
     ecall # quem executa isso tudo ? o 
     
-    la a1, INPUT_BUFFER
+    la a1, VOCAB_BUFFER
     li a2, CONST_BUFFER_SIZE
     jal ra, read_file
     ###########################################################################
@@ -84,7 +84,7 @@ main:
     ecall
 
 
-    la a1, VOCAB_BUFFER
+    la a1, INPUT_BUFFER
     li a2, CONST_BUFFER_SIZE 
     jal ra, read_file
     ###########################################################################
@@ -96,7 +96,8 @@ main:
     li a1, 0
     ecall
 
-
+    la a1, MATRIX_BUFFER
+    li a2, CONST_BUFFER SIZE
     jal ra, read_file  
     ###########################################################################
     # Parse W_Q matrix from buffer
@@ -135,6 +136,7 @@ main:
     la a0, W_V_FILENAME
     li a1, 0
     ecall
+    
     la a1, MATRIX_BUFFER
     li a2, CONST_BUFFER_SIZE
     jal ra, read_file
